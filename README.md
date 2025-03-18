@@ -81,6 +81,261 @@ node server.js
 
 ---
 
+# Task Management API
+
+## Endpoints and Expected Request Body Formats
+
+### 1. Create Task (Super Admin & Admin)
+**Endpoint:** `POST /tasks`
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "employee_name": "John Doe",
+  "due_date": "2025-03-25",
+  "requirements": "Laptop, Internet",
+  "status": "Pending",
+  "content": "Complete the client report",
+  "client_name": "ABC Corp",
+  "description": "Prepare the Q1 financial report",
+  "priority": "High"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Task created successfully",
+  "task": { /* task object */ }
+}
+```
+
+---
+
+### 2. Get Tasks
+**Endpoint:** `GET /tasks`
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "tasks": [
+    {
+      "id": 1,
+      "employee_name": "John Doe",
+      "due_date": "2025-03-23",
+      "requirements": "Laptop, Internet",
+      "status": "Pending",
+      "content": "Complete the client report",
+      "client_name": "ABC Corp",
+      "description": "Prepare the Q1 financial report",
+      "priority": "High"
+    }
+  ]
+}
+```
+
+*(Employees see tasks assigned to them, while Super Admins & Admins see all tasks.)*
+
+---
+
+### 3. Update Task
+**Endpoint:** `PUT /tasks/:id`
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Request Body (Super Admin & Admin):**
+```json
+{
+  "status": "Completed",
+  "priority": "Medium",
+  "description": "Updated task details"
+}
+```
+
+**Request Body (Employee - Can Only Update Status):**
+```json
+{
+  "status": "In Progress"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Task updated successfully",
+  "task": { /* updated task object */ }
+}
+```
+
+---
+
+### 4. Delete Task (Super Admin & Admin)
+**Endpoint:** `DELETE /tasks/:id`
+
+**Headers:**
+- `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "message": "Task deleted successfully"
+}
+```
+
+*(Only Super Admins & Admins can delete tasks.)*
+
+---
+
+# User Management API
+
+This API allows SuperAdmin users to manage Admins, Employees, and Clients.
+
+## Endpoints
+
+### 1. Add a New User (Admin or Employee)
+**Endpoint:** `POST /users`
+**Access:** SuperAdmin
+
+**Request Body:**
+```json
+{
+  "name": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "securepassword",
+  "role": "admin" // or "employee"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "User added successfully."
+}
+```
+
+---
+
+### 2. Delete a User
+**Endpoint:** `DELETE /users/:id`
+**Access:** SuperAdmin
+
+**Response:**
+```json
+{
+  "message": "User deleted successfully."
+}
+```
+
+---
+
+### 3. Promote an Admin to SuperAdmin
+**Endpoint:** `PATCH /users/promote/:id`
+**Access:** SuperAdmin
+
+**Response:**
+```json
+{
+  "message": "Admin promoted to SuperAdmin successfully."
+}
+```
+
+---
+
+### 4. Get All Users
+**Endpoint:** `GET /users`
+**Access:** SuperAdmin
+
+**Response:**
+```json
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "johndoe@example.com",
+      "role": "admin"
+    }
+  ]
+}
+```
+
+---
+
+### 5. Update User Details (Email or Password)
+**Endpoint:** `PATCH /users/:id`
+**Access:** SuperAdmin
+
+**Request Body (one or both fields required):**
+```json
+{
+  "email": "newemail@example.com",
+  "password": "newsecurepassword"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "User updated successfully",
+  "user": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "newemail@example.com",
+    "role": "admin"
+  }
+}
+```
+
+---
+
+### 6. Promote an Employee to Admin
+**Endpoint:** `PATCH /users/promote-employee/:id`
+**Access:** SuperAdmin
+
+**Response:**
+```json
+{
+  "message": "Employee promoted to Admin successfully."
+}
+```
+
+---
+
+### 7. Add a New Client
+**Endpoint:** `POST /clients`
+**Access:** Admin, SuperAdmin
+
+**Request Body:**
+```json
+{
+  "client_name": "ABC Corp",
+  "phone_number": "1234567890",
+  "requirements": {
+    "reel": 5,
+    "video": 2,
+    "poster": 10
+  },
+  "package": "Premium",
+  "description": "This is a premium client requiring video production."
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Client added successfully."
+}
+```
+
+
+
 🔑 **Note:**  
 - Include `Authorization: Bearer <token>` in headers for protected requests.  
 - **SuperAdmin** manages users & tasks.  
