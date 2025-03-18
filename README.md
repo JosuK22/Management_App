@@ -13,8 +13,8 @@ This API handles user roles, permissions, and task management.
 
 ### 1️⃣ Clone the repository:
 ```sh
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone https://github.com/JosuK22/Management_App
+cd Management_App
 ```
 
 ### 2️⃣  Install dependencies:
