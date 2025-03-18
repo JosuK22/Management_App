@@ -58,6 +58,7 @@ node server.js
 | **PUT** | `/promote-employee/:id` | SuperAdmin | Promote an Employee to Admin |
 | **GET** | `/users` | SuperAdmin | Get all Admins & Employees |
 | **PUT** | `/users/:id` | SuperAdmin | Update user email/password |
+| **POST** | `/add-client` | SuperAdmin, Admin | Add a Client |
 
 ---
 
