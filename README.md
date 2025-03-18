@@ -73,6 +73,13 @@ node server.js
 
 ---
 
+## 🗄️ Database Table Names
+- **clients** - Full control over users and tasks.
+- **users** - Can manage tasks and view all tasks.
+- **tasks** - Can view assigned tasks and update task status.
+
+---
+
 🔑 **Note:**  
 - Include `Authorization: Bearer <token>` in headers for protected requests.  
 - **SuperAdmin** manages users & tasks.  
