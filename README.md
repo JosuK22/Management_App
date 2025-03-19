@@ -73,6 +73,17 @@ node server.js
 | **PATCH** | `/tasks/:id/status` | Employee | Update task status |
 
 ---
+### 📋 Client Management
+
+| Method  | Endpoint              | Access         | Description |
+|---------|----------------------|---------------|-------------|
+| **POST** | `/add-client` | SuperAdmin, Admin | Create a new client |
+| **GET** | `/clients` | SuperAdmin, Admin | Fetch all clients |
+| **GET** | `/clients/:id` | SuperAdmin, Admin | Fetch a single client |
+| **PUT** | `/clients/:id` | SuperAdmin, Admin | Update single client|
+| **DELETE** | `/clients/:id` | SuperAdmin, Admin  | Delete a client |
+
+---
 
 ## 🗄️ Database Table Names
 - **clients** - Full control over users and tasks.
