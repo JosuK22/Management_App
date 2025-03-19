@@ -73,7 +73,7 @@ node server.js
 | **PATCH** | `/tasks/:id/status` | Employee | Update task status |
 
 ---
-### 📋 Client Management
+### 💼 Client Management
 
 | Method  | Endpoint              | Access         | Description |
 |---------|----------------------|---------------|-------------|
