@@ -308,25 +308,27 @@ This API allows SuperAdmin users to manage Admins, Employees, and Clients.
 
 ---
 
-### 7. Add a New Client
-**Endpoint:** `POST /clients`
-**Access:** Admin, SuperAdmin
+# Client Management API Endpoints
 
-**Request Body:**
+## 1. Add a New Client
+- **URL**: `/api/clients/add-client`
+- **Method**: `POST`
+- **Description**: Adds a new client. Accessible only by users with the `admin` or `superadmin` role.
+  
+### Request Body:
 ```json
 {
-  "client_name": "ABC Corp",
+  "client_name": "Client Name",
   "phone_number": "1234567890",
   "requirements": {
-    "reel": 5,
-    "video": 2,
-    "poster": 10
+    "reel": 10,
+    "video": 5,
+    "poster": 3
   },
-  "package": "Premium",
-  "description": "This is a premium client requiring video production."
+  "package": "Standard",
+  "description": "Detailed description of the client"
 }
 ```
-
 **Response:**
 ```json
 {
@@ -334,7 +336,90 @@ This API allows SuperAdmin users to manage Admins, Employees, and Clients.
 }
 ```
 
+## 2. Get All Clients
+- **URL**: `/api/clients/clients`
+- **Method**: `GET`
+- **Description**: Fetches all clients. Accessible only by users with the admin or superadmin role.
+  
+### Response Body:
+```json
+{
+  "clients": [
+    {
+      "id": 1,
+      "client_name": "Client Name",
+      "phone_number": "1234567890",
+      "requirements": {
+        "reel": 10,
+        "video": 5,
+        "poster": 3
+      },
+      "package": "Standard",
+      "description": "Client description"
+    },
+  ]
+}
+```
 
+## 3. Get a Single Client by ID
+- **URL**: `/api/clients/clients/:id`
+- **Method**: `GET`
+- **Description**: Fetch a single client by its ID. Accessible only by users with the admin or superadmin role.
+  
+### Response Body:
+```json
+{
+  "client": {
+    "id": 1,
+    "client_name": "Client Name",
+    "phone_number": "1234567890",
+    "requirements": {
+      "reel": 10,
+      "video": 5,
+      "poster": 3
+    },
+    "package": "Standard",
+    "description": "Client description"
+  }
+}
+```
+
+## 4. Update Client Details
+- **URL**: `/api/clients/clients/:id`
+- **Method**: `PUT`
+- **Description**: Updates the details of a client. Accessible only by users with the admin or superadmin role.
+  
+### Request Body:
+```json
+{
+  "client_name": "Updated Client Name",
+  "phone_number": "0987654321",
+  "requirements": {
+    "reel": 12,
+    "video": 7,
+    "poster": 4
+  },
+  "package": "Premium",
+  "description": "Updated description of the client"
+}
+```
+**Response:**
+```json
+{
+  "message": "Client updated successfully."
+}
+```
+## 5. Delete a Client
+- **URL**: `/api/clients/clients/:id`
+- **Method**: `DELETE`
+- **Description**: Deletes a client. Accessible only by users with the admin or superadmin role.
+
+**Response:**
+```json
+{
+  "message": "Client deleted successfully."
+}
+```
 
 🔑 **Note:**  
 - Include `Authorization: Bearer <token>` in headers for protected requests.  

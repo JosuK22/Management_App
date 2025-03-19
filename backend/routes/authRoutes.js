@@ -1,6 +1,6 @@
 const express = require('express');
 const passport = require('passport');
-const { signup, forgotPassword, resetPassword } = require('../controllers/authController');
+const {  forgotPassword, resetPassword } = require('../controllers/authController');
 const router = express.Router();
 
 // POST Login using Passport Local Strategy
@@ -9,7 +9,7 @@ router.post('/login', passport.authenticate('local', { session: false }), (req, 
   
   // JWT Token creation after successful authentication
   const token = jwt.sign(
-    { userId: req.user.id, email: req.user.email },
+    { userId: req.user.id, email: req.user.email, role: req.user.role },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   );
@@ -17,7 +17,7 @@ router.post('/login', passport.authenticate('local', { session: false }), (req, 
   res.status(200).json({
     message: 'success',
     data: {
-      info: { email: req.user.email, name: req.user.name, _id: req.user.id },
+      info: { email: req.user.email, name: req.user.name, _id: req.user.id, role: req.user.role },
       token,
     },
   });

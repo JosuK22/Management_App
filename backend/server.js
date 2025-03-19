@@ -3,9 +3,12 @@ const { app } = require('./app');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 
+const clientRoutes = require('./routes/clientRoutes');
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/clients', clientRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;
