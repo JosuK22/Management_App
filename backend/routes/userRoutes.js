@@ -23,17 +23,4 @@ router.get('/users', authMiddleware, checkRole(['superadmin']), getAllUsers);
 // Update user (email or password) - Only SuperAdmin can update Admins and Employees
 router.put('/users/:id', authMiddleware, checkRole(['superadmin']), updateUser);
 
-// Add Client (Only Admin or SuperAdmin)
-router.post('/add-client', authMiddleware, checkRole(['admin', 'superadmin']), addClient);
-
-// View all clients (Admin & SuperAdmin)
-router.get('/clients', authMiddleware, checkRole(['admin', 'superadmin']), getAllClients);
-
-// View a single client by ID (Admin & SuperAdmin)
-router.get('/clients/:id', authMiddleware, checkRole('admin', 'superadmin'), getClientById);
-
-// Update client details (Only Admin & SuperAdmin)
-router.put('/clients/:id', authMiddleware, checkRole('admin', 'superadmin'), updateClient);
-
-
 module.exports = router;

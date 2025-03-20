@@ -41,18 +41,64 @@ const getTasks = async (req, res) => {
         }
 
         const result = await pool.query(query, values);
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
 
-        // Modify due_date for employees (showing 2 days earlier)
-        const tasks = result.rows.map(task => {
+        const formatDate = (date) => date.toISOString().split('T')[0]; // YYYY-MM-DD format
+
+        const formattedToday = formatDate(today);
+        const formattedTomorrow = formatDate(tomorrow);
+
+        let allTasks = [];
+        let pendingTasks = [];
+        let dueTodayTasks = [];
+        let dueTomorrowTasks = [];
+
+        result.rows.forEach(task => {
+            let dueDate = new Date(task.due_date);
+
             if (user.role === 'employee') {
-                let dueDate = new Date(task.due_date);
-                dueDate.setDate(dueDate.getDate() - 2); // Subtract 2 days
-                task.due_date = dueDate.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+                dueDate.setDate(dueDate.getDate() - 2);
+                if (dueDate.getDay() === 0) { // If adjusted due date falls on Sunday, subtract one more day
+                    dueDate.setDate(dueDate.getDate() - 1);
+                }
             }
-            return task;
+
+            const formattedDueDate = formatDate(dueDate);
+            task.due_date = dueDate.toLocaleDateString("en-GB").replace(/\//g, "-"); // Format DD-MM-YYYY
+
+            const taskData = {
+                id: task.id,
+                title: task.title,
+                due_date: task.due_date,
+                status: task.status,
+                priority: task.priority,
+                employee_name: task.employee_name, // Include assigned employee
+                client_name: task.client_name,
+                description: task.description
+            };
+
+            allTasks.push(taskData);
+
+            if (formattedDueDate < formattedToday) {
+                pendingTasks.push(taskData); // Overdue tasks
+            }
+            if (formattedDueDate === formattedToday) {
+                pendingTasks.push(taskData); // Also add today's tasks to pending
+                dueTodayTasks.push(taskData);
+            }
+            if (formattedDueDate === formattedTomorrow) {
+                dueTomorrowTasks.push(taskData);
+            }
         });
 
-        res.status(200).json({ tasks });
+        res.status(200).json({
+            allTasks,
+            pendingTasks,  
+            dueTodayTasks, 
+            dueTomorrowTasks
+        });
     } catch (error) {
         console.error("Get Tasks Error:", error);
         res.status(500).json({ message: "Server error" });
