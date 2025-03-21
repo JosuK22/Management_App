@@ -54,6 +54,7 @@ const getTasks = async (req, res) => {
         let pendingTasks = [];
         let dueTodayTasks = [];
         let dueTomorrowTasks = [];
+        let notifications = []; // To store notifications
 
         result.rows.forEach(task => {
             let dueDate = new Date(task.due_date);
@@ -74,7 +75,7 @@ const getTasks = async (req, res) => {
                 due_date: task.due_date,
                 status: task.status,
                 priority: task.priority,
-                employee_name: task.employee_name, // Include assigned employee
+                employee_name: task.employee_name, 
                 client_name: task.client_name,
                 description: task.description
             };
@@ -82,22 +83,48 @@ const getTasks = async (req, res) => {
             allTasks.push(taskData);
 
             if (formattedDueDate < formattedToday) {
-                pendingTasks.push(taskData); // Overdue tasks
+                pendingTasks.push(taskData); 
             }
             if (formattedDueDate === formattedToday) {
-                pendingTasks.push(taskData); // Also add today's tasks to pending
+                pendingTasks.push(taskData); 
                 dueTodayTasks.push(taskData);
             }
             if (formattedDueDate === formattedTomorrow) {
                 dueTomorrowTasks.push(taskData);
+
+                // Add a notification for tasks due tomorrow
+                notifications.push({
+                    user: 'employee',
+                    message: `Task "${task.title}" is due tomorrow!`,
+                    taskId: task.id
+                });
+
+                // If the user is a Super Admin, also notify them
+                if (user.role === 'superadmin') {
+                    notifications.push({
+                        user: 'superadmin',
+                        message: `Task "${task.title}" assigned to ${task.employee_name} is due tomorrow!`,
+                        taskId: task.id
+                    });
+                }
+
+                // If the user is the assigned employee, notify them as well
+                if (user.role === 'employee' && task.employee_name === user.name) {
+                    notifications.push({
+                        user: 'employee',
+                        message: `Reminder: Task "${task.title}" is due tomorrow!`,
+                        taskId: task.id
+                    });
+                }
             }
         });
 
         res.status(200).json({
             allTasks,
-            pendingTasks,  
-            dueTodayTasks, 
-            dueTomorrowTasks
+            pendingTasks,
+            dueTodayTasks,
+            dueTomorrowTasks,
+            notifications 
         });
     } catch (error) {
         console.error("Get Tasks Error:", error);

@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
 const { pool } = require('../app');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
@@ -63,6 +63,7 @@ const resetPassword = async (req, res) => {
   const { password } = req.body; // New password from the request body
 
   try {
+    
     // Fetch user by the reset token
     const userResult = await pool.query('SELECT * FROM users WHERE reset_token = $1', [token]);
     const user = userResult.rows[0];
