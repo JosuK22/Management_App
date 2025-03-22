@@ -5,36 +5,57 @@ const { pool } = require('../app');
 const addClient = async (req, res) => {
     const { client_name, phone_number, requirements, package, description } = req.body;
 
+    console.log('Incoming request data for adding client:', req.body); // Log incoming request
+
     // Validate that the required fields are provided
     if (!client_name || !phone_number || !requirements || !package || !description) {
+        console.log('Missing required fields:', {
+            client_name,
+            phone_number,
+            requirements,
+            package,
+            description
+        });
         return res.status(400).json({ message: 'Missing required fields' });
     }
 
     // Validate that the requirements field has valid numbers
     if (typeof requirements.reel !== 'number' || typeof requirements.video !== 'number' || typeof requirements.poster !== 'number') {
+        console.log('Invalid requirements values:', requirements);
         return res.status(400).json({ message: 'Requirements should contain numeric values for reel, video, and poster' });
     }
 
     try {
-        // Check if the user is an admin or superadmin (assuming `req.user.role` is available from authMiddleware)
+        // Log the user role from auth middleware
         const { role } = req.user;
+        console.log('Authenticated user role:', role);
+
+        // Check if the user is an admin or superadmin
         if (role !== 'admin' && role !== 'superadmin') {
+            console.log('Permission denied: User does not have the right role');
             return res.status(403).json({ message: 'Forbidden: You do not have permission to add a client.' });
         }
 
         // Insert the new client details into the database
+        console.log('Attempting to insert client into database...');
         await pool.query(
             `INSERT INTO clients (client_name, phone_number, requirements, package, description) 
             VALUES ($1, $2, $3, $4, $5)`,
             [client_name, phone_number, JSON.stringify(requirements), package, description]
         );
 
+        console.log('Client added successfully.');
         res.status(201).json({ message: 'Client added successfully.' });
     } catch (error) {
-        console.error('Error adding client:', error);
+        // Log detailed error information
+        console.error('Error adding client:', error.message);
+        console.error('Error stack trace:', error.stack);
+
+        // Return a generic error message to the client
         res.status(500).json({ message: 'Server error while adding client' });
     }
 };
+
 
 // Get all clients
 const getAllClients = async (req, res) => {

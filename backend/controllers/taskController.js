@@ -168,6 +168,40 @@ const updateTask = async (req, res) => {
     }
 };
 
+// Update task status (employee only)
+const updateTaskStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const { user } = req;
+
+        // Ensure the status is one of the allowed values
+        const validStatuses = ['not started', 'inprogress', 'done'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ message: "Invalid status. Valid statuses are: 'not started', 'inprogress', or 'done'." });
+        }
+
+        if (user.role !== 'employee') {
+            return res.status(403).json({ message: "Forbidden: Only employees can update task status" });
+        }
+
+        // Update the task status in the database
+        const result = await pool.query(
+            'UPDATE tasks SET status = $1 WHERE id = $2 AND employee_name = $3 RETURNING *',
+            [status, id, user.name]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "Task not found or unauthorized" });
+        }
+
+        res.status(200).json({ message: "Task status updated successfully", task: result.rows[0] });
+    } catch (error) {
+        console.error("Update Task Status Error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 // Delete Task (Only Super Admin & Admin)
 const deleteTask = async (req, res) => {
     try {
@@ -191,5 +225,6 @@ const deleteTask = async (req, res) => {
     }
 };
 
-module.exports = { createTask, getTasks, updateTask, deleteTask };
+
+module.exports = { createTask, getTasks, updateTask, deleteTask, updateTaskStatus };
 

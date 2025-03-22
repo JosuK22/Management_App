@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "QBtech",
+    "database": "AuthenticationQB",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "QBtech",
+    "database": "AuthenticationQB",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "QBtech",
+    "database": "AuthenticationQB",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}

@@ -15,7 +15,7 @@ const roleMiddleware = (allowedRoles) => async (req, res, next) => {
     req.user = decoded;
 
     // Fetch user role from the database to ensure it is up to date
-    const result = await pool.query('SELECT role FROM users WHERE id = $1', [decoded.id]);
+    const result = await pool.query('SELECT role FROM users WHERE id = $1', [decoded.userId]);
 
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'User not found' });
