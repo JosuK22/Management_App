@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { pool } = require('../app');
+const { User } = require('../models'); 
 require('dotenv').config();
 
 const roleMiddleware = (allowedRoles) => async (req, res, next) => {
@@ -14,17 +14,15 @@ const roleMiddleware = (allowedRoles) => async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
 
-    // Fetch user role from the database to ensure it is up to date
-    const result = await pool.query('SELECT role FROM users WHERE id = $1', [decoded.userId]);
+    // Fetch user role using Sequelize
+    const user = await User.findByPk(decoded.userId, { attributes: ['role'] });
 
-    if (result.rowCount === 0) {
+    if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const userRole = result.rows[0].role;
-
     // Check if user role is allowed
-    if (!allowedRoles.includes(userRole)) {
+    if (!allowedRoles.includes(user.role)) {
       return res.status(403).json({ message: 'Forbidden: You do not have permission' });
     }
 

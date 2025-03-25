@@ -1,47 +1,49 @@
-// backend/app.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const { Pool } = require('pg');
-const { initializePassport } = require('./passportConfig'); // Import initializePassport function
+const sequelize = require('./config/database.js'); // Import Sequelize instance
+const { initializePassport } = require('./passportConfig');
+const errorMiddleware = require('./middlewares/errorMiddleware.js'); // Import error middleware
 
-// Load environment variables
 dotenv.config();
 
-console.log('App running....');
-// Initialize express app
-const app = express();
+console.log('App running...');
 
-// Database connection using Koyeb PostgreSQL URL
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: false,
-});
+const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cors());
 
-// Check DB connection
-pool.connect()
+// Test Database Connection
+sequelize.authenticate()
   .then(() => {
-    console.log('Successfully connected to the database!');
-    // Now initialize Passport after the pool has been connected
-    initializePassport(pool); // Initialize Passport with the database pool
+    console.log('✅ Connected to database');
+    initializePassport(sequelize); // If needed, adjust this to use Sequelize
   })
   .catch((err) => {
     console.error('Database connection failed:', err);
   });
 
-// Test DB Connection (example route)
+// Test Route with Sequelize
 app.get('/test', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM users');
-    res.json(result.rows);
+    const [results, metadata] = await sequelize.query('SELECT * FROM users;');
+    res.json(results);
   } catch (error) {
     console.error(error);
     res.status(500).send('Database error');
   }
 });
 
-module.exports = { app, pool };
+// 404 Middleware (Catch-All for Unknown Routes)
+app.use((req, res, next) => {
+  const error = new Error('Page not found');
+  error.status = 404;
+  next(error);
+});
+
+// Error Handling Middleware
+app.use(errorMiddleware);
+
+module.exports = { app, sequelize };

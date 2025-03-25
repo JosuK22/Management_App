@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
+    "sequelize": "sequelize",
+    "db:init": "sequelize-cli init",
+    "db:migrate": "sequelize-cli db:migrate --config backend/config/config.js",
+    "db:seed": "sequelize-cli db:seed:all --config backend/config/config.js",
+    "db:rollback": "sequelize-cli db:migrate:undo --config backend/config/config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,6 +26,11 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.14.1",
-    "sequelize": "^6.37.6"
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.6",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.2"
   }
 }

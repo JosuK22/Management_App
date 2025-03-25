@@ -1,5 +1,6 @@
-const { pool } = require('../app');
+const { User } = require('../models'); // Import Sequelize model
 const bcrypt = require('bcryptjs');
+const { Op } = require('sequelize');
 
 // Add a new Admin or Employee (Only SuperAdmin)
 const addUser = async (req, res) => {
@@ -10,20 +11,15 @@ const addUser = async (req, res) => {
     }
 
     try {
-        // Check if user already exists
-        const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (existingUser.rows.length > 0) {
+        const existingUser = await User.findOne({ where: { email } });
+
+        if (existingUser) {
             return res.status(400).json({ message: 'User already exists.' });
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insert new user
-        await pool.query(
-            'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)',
-            [name, email, hashedPassword, role]
-        );
+        await User.create({ name, email, password: hashedPassword, role });
 
         res.status(201).json({ message: 'User added successfully.' });
     } catch (error) {
@@ -37,20 +33,17 @@ const deleteUser = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-        const user = userResult.rows[0];
+        const user = await User.findByPk(id);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
         }
 
-        // Prevent deletion of SuperAdmin
         if (user.role === 'superadmin') {
             return res.status(403).json({ message: 'Cannot delete the SuperAdmin.' });
         }
 
-        // Delete user
-        await pool.query('DELETE FROM users WHERE id = $1', [id]);
+        await user.destroy();
 
         res.status(200).json({ message: 'User deleted successfully.' });
     } catch (error) {
@@ -64,21 +57,19 @@ const promoteAdmin = async (req, res) => {
     const { id } = req.params;
 
     try {
-        // Get current SuperAdmin
-        const currentSuperAdmin = await pool.query('SELECT * FROM users WHERE role = $1', ['superadmin']);
-        const newSuperAdmin = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+        const currentSuperAdmin = await User.findOne({ where: { role: 'superadmin' } });
+        const newSuperAdmin = await User.findByPk(id);
 
-        if (newSuperAdmin.rows.length === 0) {
+        if (!newSuperAdmin) {
             return res.status(404).json({ message: 'Admin not found.' });
         }
 
-        if (newSuperAdmin.rows[0].role !== 'admin') {
+        if (newSuperAdmin.role !== 'admin') {
             return res.status(400).json({ message: 'Only an admin can be promoted to SuperAdmin.' });
         }
 
-        // Update roles
-        await pool.query('UPDATE users SET role = $1 WHERE id = $2', ['admin', currentSuperAdmin.rows[0].id]);
-        await pool.query('UPDATE users SET role = $1 WHERE id = $2', ['superadmin', id]);
+        await currentSuperAdmin.update({ role: 'admin' });
+        await newSuperAdmin.update({ role: 'superadmin' });
 
         res.status(200).json({ message: 'Admin promoted to SuperAdmin successfully.' });
     } catch (error) {
@@ -90,81 +81,83 @@ const promoteAdmin = async (req, res) => {
 // Get all users (Admins and Employees)
 const getAllUsers = async (req, res) => {
     try {
-      const result = await pool.query("SELECT id, name, email, role FROM users WHERE role != 'superadmin'");
-      res.status(200).json({ users: result.rows });
+        const users = await User.findAll({
+            where: { role: { [Op.ne]: 'superadmin' } }, 
+            attributes: ['id', 'name', 'email', 'role']
+        });
+
+        res.status(200).json({ users });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error while fetching users' });
+        console.error(error);
+        res.status(500).json({ message: 'Server error while fetching users' });
     }
 };
 
-  // Update user details (email or password)
-  const updateUser = async (req, res) => {
+// Update user details (email or password)
+const updateUser = async (req, res) => {
     const { id } = req.params;
     const { email, password } = req.body;
-  
+
     try {
-      let query = 'UPDATE users SET';
-      const params = [];
-      
-      if (email) {
-        params.push(email);
-        query += ` email = $${params.length},`;
-      }
-      
-      if (password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        params.push(hashedPassword);
-        query += ` password = $${params.length},`;
-      }
-  
-      query = query.slice(0, -1); // Remove last comma
-      params.push(id);
-      query += ` WHERE id = $${params.length} RETURNING id, name, email, role`;
-  
-      const result = await pool.query(query, params);
-      
-      if (result.rowCount === 0) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      res.status(200).json({ message: 'User updated successfully', user: result.rows[0] });
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (email) user.email = email;
+        if (password) user.password = await bcrypt.hash(password, 10);
+
+        await user.save();
+
+        res.status(200).json({ message: 'User updated successfully', user });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Error updating user' });
+        console.error(error);
+        res.status(500).json({ message: 'Error updating user' });
     }
-  };
+};
 
-  // Promote an Employee to Admin (Only SuperAdmin)
-  const promoteEmployee = async (req, res) => {
+// Promote an Employee to Admin (Only SuperAdmin)
+const promoteEmployee = async (req, res) => {
     const { id } = req.params;
-    const { user } = req; // Assuming `user` is extracted from authentication middleware
+    const { user } = req; 
 
     try {
-        // Ensure only SuperAdmin can promote employees
         if (user.role !== 'superadmin') {
             return res.status(403).json({ message: 'Forbidden: Only SuperAdmin can promote employees.' });
         }
 
-        // Check if the user exists
-        const employeeResult = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-        if (employeeResult.rows.length === 0) {
-            return res.status(404).json({ message: 'Employee not found.' });
+        const employee = await User.findByPk(id);
+        if (!employee || employee.role !== 'employee') {
+            return res.status(404).json({ message: 'Employee not found or not an employee.' });
         }
 
-        // Ensure the user is an employee
-        if (employeeResult.rows[0].role !== 'employee') {
-            return res.status(400).json({ message: 'Only an employee can be promoted to admin.' });
-        }
-
-        // Promote employee to admin
-        await pool.query('UPDATE users SET role = $1 WHERE id = $2', ['admin', id]);
+        await employee.update({ role: 'admin' });
 
         res.status(200).json({ message: 'Employee promoted to Admin successfully.' });
     } catch (error) {
-        console.error("Promote Employee Error:", error);
+        console.error(error);
         res.status(500).json({ message: 'Server error' });
     }
 };
 
-module.exports = { addUser, deleteUser, promoteAdmin, getAllUsers, updateUser, promoteEmployee };
+const getUserById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await User.findByPk(id, {
+            attributes: ['id', 'name', 'email', 'role']
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error while fetching user' });
+    }
+};
+
+
+module.exports = { addUser, deleteUser, promoteAdmin, getAllUsers, updateUser, promoteEmployee, getUserById };

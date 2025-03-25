@@ -1,5 +1,5 @@
 const express = require('express');
-const { addUser, deleteUser, promoteAdmin, promoteEmployee, getAllUsers, updateUser, addClient } = require('../controllers/userController');
+const { addUser, deleteUser, promoteAdmin, promoteEmployee, getAllUsers, updateUser, getUserById } = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const checkRole  = require('../middlewares/roleMiddleware');
 
@@ -19,6 +19,9 @@ router.put('/promote-employee/:id', authMiddleware, checkRole(['superadmin']), p
 
 // Get all users (Admins and Employees) - Only SuperAdmin can access
 router.get('/users', authMiddleware, checkRole(['superadmin']), getAllUsers);
+
+// Get a single employee (Only Admin and SuperAdmin)
+router.get('/user/:id', authMiddleware, checkRole(['admin', 'superadmin']), getUserById);
 
 // Update user (email or password) - Only SuperAdmin can update Admins and Employees
 router.put('/users/:id', authMiddleware, checkRole(['superadmin']), updateUser);
