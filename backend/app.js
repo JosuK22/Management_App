@@ -3,7 +3,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const sequelize = require('./config/database.js'); // Import Sequelize instance
 const { initializePassport } = require('./passportConfig');
-const errorMiddleware = require('./middlewares/errorMiddleware.js'); // Import error middleware
 
 dotenv.config();
 
@@ -35,15 +34,5 @@ app.get('/test', async (req, res) => {
     res.status(500).send('Database error');
   }
 });
-
-// 404 Middleware (Catch-All for Unknown Routes)
-app.use((req, res, next) => {
-  const error = new Error('Page not found');
-  error.status = 404;
-  next(error);
-});
-
-// Error Handling Middleware
-app.use(errorMiddleware);
 
 module.exports = { app, sequelize };
