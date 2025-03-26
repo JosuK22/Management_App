@@ -24,7 +24,7 @@ npm install
 
 ### 3️⃣  Configure Environment Variables in backend :
 ```sh
-DATABASE_URL=postgres://postgres:USER_NAME@localhost:5432/DATABASE_NAME
+DATABASE_URL=postgres://USER_NAME:DB_PASSWORD@localhost:5432/DATABASE_NAME
 JWT_SECRET=YOUR_SECRET_KEY
 EMAIL_USER=YOUR_EMAIL_ID
 EMAIL_PASSWORD=YOUR_APP_PASSWORD
