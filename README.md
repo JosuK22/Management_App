@@ -42,9 +42,9 @@ node server.js
 
 | Method  | Endpoint              | Access      | Description |
 |---------|----------------------|------------|-------------|
-| **POST** | `/login` | All Users | Login (Returns JWT token) |
-| **POST** | `/forgot-password` | All Users | Sends password reset email |
-| **POST** | `/reset-password/:token` | All Users | Resets user password |
+| **POST** | `/api/auth/login` | All Users | Login (Returns JWT token) |
+| **POST** | `/api/auth/forgot-password` | All Users | Sends password reset email |
+| **POST** | `/api/auth/reset-password/:token` | All Users | Resets user password |
 
 ---
 
@@ -52,13 +52,13 @@ node server.js
 
 | Method  | Endpoint              | Access      | Description |
 |---------|----------------------|------------|-------------|
-| **POST** | `/add-user` | SuperAdmin | Add an Admin or Employee |
-| **DELETE** | `/delete-user/:id` | SuperAdmin | Delete an Admin or Employee |
-| **PUT** | `/promote-admin/:id` | SuperAdmin | Promote an Admin to SuperAdmin |
-| **PUT** | `/promote-employee/:id` | SuperAdmin | Promote an Employee to Admin |
-| **GET** | `/users` | SuperAdmin | Get all Admins & Employees |
+| **POST** | `/api/users/add-user` | SuperAdmin | Add an Admin or Employee |
+| **DELETE** | `/api/users/delete-user/:id` | SuperAdmin | Delete an Admin or Employee |
+| **PUT** | `/api/users/promote-admin/:id` | SuperAdmin | Promote an Admin to SuperAdmin |
+| **PUT** | `/api/users/promote-employee/:id` | SuperAdmin | Promote an Employee to Admin |
+| **GET** | `/api/users/users` | SuperAdmin | Get all Admins & Employees |
 | **PUT** | `/users/:id` | SuperAdmin | Update user email/password |
-| **POST** | `/add-client` | SuperAdmin, Admin | Add a Client |
+
 
 ---
 
@@ -66,29 +66,29 @@ node server.js
 
 | Method  | Endpoint              | Access         | Description |
 |---------|----------------------|---------------|-------------|
-| **POST** | `/tasks` | SuperAdmin, Admin | Create a new task |
-| **PUT** | `/tasks/:id` | SuperAdmin, Admin | Update a task |
-| **DELETE** | `/tasks/:id` | SuperAdmin, Admin | Delete a task |
-| **GET** | `/tasks` | All Users | View tasks (Admins see all, Employees see assigned tasks) |
-| **PATCH** | `/tasks/:id/status` | Employee | Update task status |
+| **POST** | `/api/tasks/` | SuperAdmin, Admin | Create a new task |
+| **PUT** | `/api/tasks/:id` | SuperAdmin, Admin | Update a task |
+| **DELETE** | `/api/tasks/:id` | SuperAdmin, Admin | Delete a task |
+| **GET** | `/api/tasks` | All Users | View tasks (Admins see all, Employees see assigned tasks) |
+| **PATCH** | `/api/tasks/:id/status` | Employee | Update task status |
 
 ---
 ### 💼 Client Management
 
 | Method  | Endpoint              | Access         | Description |
 |---------|----------------------|---------------|-------------|
-| **POST** | `/add-client` | SuperAdmin, Admin | Create a new client |
-| **GET** | `/clients` | SuperAdmin, Admin | Fetch all clients |
-| **GET** | `/clients/:id` | SuperAdmin, Admin | Fetch a single client |
-| **PUT** | `/clients/:id` | SuperAdmin, Admin | Update single client|
-| **DELETE** | `/clients/:id` | SuperAdmin, Admin  | Delete a client |
+| **POST** | `/api/clients/add-client` | SuperAdmin, Admin | Create a new client |
+| **GET** | `/api/clients/clients` | SuperAdmin, Admin | Fetch all clients |
+| **GET** | `/api/clients/clients/:id` | SuperAdmin, Admin | Fetch a single client |
+| **PUT** | `/api/clients/clients/:id` | SuperAdmin, Admin | Update single client|
+| **DELETE** | `/api/clients/clients/:id` | SuperAdmin, Admin  | Delete a client |
 
 ---
 
 ## 🗄️ Database Table Names
-- **clients** - Full control over users and tasks.
-- **users** - Can manage tasks and view all tasks.
-- **tasks** - Can view assigned tasks and update task status.
+- **Clients** - Details of Clients.
+- **Users** - Details of every users.
+- **Tasks** - Details of every tasks.
 
 ---
 
