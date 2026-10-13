@@ -1,4 +1,4 @@
-# Backend API Endpoints and Details
+# Backend API Endpoints and Details of Management Application
 
 This API handles user roles, permissions, and task management.
 
